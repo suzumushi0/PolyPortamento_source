@@ -1,7 +1,7 @@
 //
 // Copyright (c) 2023 suzumushi
 //
-// 2023-9-5		PPprocessor.cpp
+// 2023-9-25		PPprocessor.cpp
 //
 // Licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0).
 //
@@ -46,8 +46,8 @@ tresult PLUGIN_API PolyPortamentoProcessor:: initialize (FUnknown* context)
 		return result;
 	}
 
-	//--- create Audio IO ------
-	addAudioOutput (STR16 ("Dummy"), Steinberg::Vst::SpeakerArr::kStereo);
+	//--- create Audio IO (for SteinbergTestHost) ------
+	// addAudioOutput (STR16 ("unused"), Steinberg::Vst::SpeakerArr::kStereo);
 
 	//--- create MIDI IO ------
 	addEventInput (STR16 ("MIDI In"));

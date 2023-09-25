@@ -1,7 +1,7 @@
 //
 // Copyright (c) 2023 suzumushi
 //
-// 2023-9-10		PPparam.h
+// 2023-9-25		PPparam.h
 //
 // Licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0).
 //
@@ -26,7 +26,7 @@ constexpr ParamID P_CURVE {2};			// portmento curve
 constexpr struct logTaperParameter p_time = {
 	P_TIME,								// tag
 	{0.0},								// min
-	{4.0},								// max
+	{8.0},								// max
 	{0.0},								// default
 	{0},								// continuous
 	{ParameterInfo::kCanAutomate}		// flags
