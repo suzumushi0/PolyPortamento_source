@@ -1,7 +1,7 @@
 //
 // Copyright (c) 2023 suzumushi
 //
-// 2023-9-4		PPcontroller.cpp
+// 2023-10-11		PPcontroller.cpp
 //
 // Licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0).
 //
@@ -56,6 +56,96 @@ tresult PLUGIN_API PolyPortamentoController:: initialize (FUnknown* context)
 		p_curve.min, p_curve.max, p_curve.def, p_curve.steps, p_curve.flags);
 	p_curve_param -> setPrecision (precision2);
 	parameters.addParameter (p_curve_param);
+
+	Vst::RangeParameter* pitch_bend_param_02 = new Vst::RangeParameter (
+		STR16 ("Ch 2 pitch bend"), PITCH_BEND_02, STR16 ("Semitone"),
+		pitch_bend.min, pitch_bend.max, pitch_bend.def, pitch_bend.steps, pitch_bend.flags);
+	pitch_bend_param_02 -> setPrecision (precision2);
+	parameters.addParameter (pitch_bend_param_02);
+
+	Vst::RangeParameter* pitch_bend_param_03 = new Vst::RangeParameter (
+		STR16 ("Ch 3 pitch bend"), PITCH_BEND_03, STR16 ("Semitone"),
+		pitch_bend.min, pitch_bend.max, pitch_bend.def, pitch_bend.steps, pitch_bend.flags);
+	pitch_bend_param_03 -> setPrecision (precision2);
+	parameters.addParameter (pitch_bend_param_03);
+
+	Vst::RangeParameter* pitch_bend_param_04 = new Vst::RangeParameter (
+		STR16 ("Ch 4 pitch bend"), PITCH_BEND_04, STR16 ("Semitone"),
+		pitch_bend.min, pitch_bend.max, pitch_bend.def, pitch_bend.steps, pitch_bend.flags);
+	pitch_bend_param_04 -> setPrecision (precision2);
+	parameters.addParameter (pitch_bend_param_04);
+
+	Vst::RangeParameter* pitch_bend_param_05 = new Vst::RangeParameter (
+		STR16 ("Ch 5 pitch bend"), PITCH_BEND_05, STR16 ("Semitone"),
+		pitch_bend.min, pitch_bend.max, pitch_bend.def, pitch_bend.steps, pitch_bend.flags);
+	pitch_bend_param_05 -> setPrecision (precision2);
+	parameters.addParameter (pitch_bend_param_05);
+
+	Vst::RangeParameter* pitch_bend_param_06 = new Vst::RangeParameter (
+		STR16 ("Ch 6 pitch bend"), PITCH_BEND_06, STR16 ("Semitone"),
+		pitch_bend.min, pitch_bend.max, pitch_bend.def, pitch_bend.steps, pitch_bend.flags);
+	pitch_bend_param_06 -> setPrecision (precision2);
+	parameters.addParameter (pitch_bend_param_06);
+
+	Vst::RangeParameter* pitch_bend_param_07 = new Vst::RangeParameter (
+		STR16 ("Ch 7 pitch bend"), PITCH_BEND_07, STR16 ("Semitone"),
+		pitch_bend.min, pitch_bend.max, pitch_bend.def, pitch_bend.steps, pitch_bend.flags);
+	pitch_bend_param_07 -> setPrecision (precision2);
+	parameters.addParameter (pitch_bend_param_07);
+
+	Vst::RangeParameter* pitch_bend_param_08 = new Vst::RangeParameter (
+		STR16 ("Ch 8 pitch bend"), PITCH_BEND_08, STR16 ("Semitone"),
+		pitch_bend.min, pitch_bend.max, pitch_bend.def, pitch_bend.steps, pitch_bend.flags);
+	pitch_bend_param_08 -> setPrecision (precision2);
+	parameters.addParameter (pitch_bend_param_08);
+
+	Vst::RangeParameter* pitch_bend_param_09 = new Vst::RangeParameter (
+		STR16 ("Ch 9 pitch bend"), PITCH_BEND_09, STR16 ("Semitone"),
+		pitch_bend.min, pitch_bend.max, pitch_bend.def, pitch_bend.steps, pitch_bend.flags);
+	pitch_bend_param_09 -> setPrecision (precision2);
+	parameters.addParameter (pitch_bend_param_09);
+
+	Vst::RangeParameter* pitch_bend_param_10 = new Vst::RangeParameter (
+		STR16 ("Ch 10 pitch bend"), PITCH_BEND_10, STR16 ("Semitone"),
+		pitch_bend.min, pitch_bend.max, pitch_bend.def, pitch_bend.steps, pitch_bend.flags);
+	pitch_bend_param_10 -> setPrecision (precision2);
+	parameters.addParameter (pitch_bend_param_10);
+
+	Vst::RangeParameter* pitch_bend_param_11 = new Vst::RangeParameter (
+		STR16 ("Ch 11 pitch bend"), PITCH_BEND_11, STR16 ("Semitone"),
+		pitch_bend.min, pitch_bend.max, pitch_bend.def, pitch_bend.steps, pitch_bend.flags);
+	pitch_bend_param_11 -> setPrecision (precision2);
+	parameters.addParameter (pitch_bend_param_11);
+
+	Vst::RangeParameter* pitch_bend_param_12 = new Vst::RangeParameter (
+		STR16 ("Ch 12 pitch bend"), PITCH_BEND_12, STR16 ("Semitone"),
+		pitch_bend.min, pitch_bend.max, pitch_bend.def, pitch_bend.steps, pitch_bend.flags);
+	pitch_bend_param_12 -> setPrecision (precision2);
+	parameters.addParameter (pitch_bend_param_12);
+
+	Vst::RangeParameter* pitch_bend_param_13 = new Vst::RangeParameter (
+		STR16 ("Ch 13 pitch bend"), PITCH_BEND_13, STR16 ("Semitone"),
+		pitch_bend.min, pitch_bend.max, pitch_bend.def, pitch_bend.steps, pitch_bend.flags);
+	pitch_bend_param_13 -> setPrecision (precision2);
+	parameters.addParameter (pitch_bend_param_13);
+
+	Vst::RangeParameter* pitch_bend_param_14 = new Vst::RangeParameter (
+		STR16 ("Ch 14 pitch bend"), PITCH_BEND_14, STR16 ("Semitone"),
+		pitch_bend.min, pitch_bend.max, pitch_bend.def, pitch_bend.steps, pitch_bend.flags);
+	pitch_bend_param_14 -> setPrecision (precision2);
+	parameters.addParameter (pitch_bend_param_14);
+
+	Vst::RangeParameter* pitch_bend_param_15 = new Vst::RangeParameter (
+		STR16 ("Ch 15 pitch bend"), PITCH_BEND_15, STR16 ("Semitone"),
+		pitch_bend.min, pitch_bend.max, pitch_bend.def, pitch_bend.steps, pitch_bend.flags);
+	pitch_bend_param_15 -> setPrecision (precision2);
+	parameters.addParameter (pitch_bend_param_15);
+
+	Vst::RangeParameter* pitch_bend_param_16 = new Vst::RangeParameter (
+		STR16 ("Ch 16 pitch bend"), PITCH_BEND_16, STR16 ("Semitone"),
+		pitch_bend.min, pitch_bend.max, pitch_bend.def, pitch_bend.steps, pitch_bend.flags);
+	pitch_bend_param_16 -> setPrecision (precision2);
+	parameters.addParameter (pitch_bend_param_16);
 
 	return result;
 }
@@ -162,10 +252,10 @@ tresult PLUGIN_API PolyPortamentoController:: getParamValueByString (Vst::ParamI
 //--------------------------------------
 tresult PLUGIN_API PolyPortamentoController:: getMidiControllerAssignment (Steinberg::int32 busIndex, Steinberg::int16 channel, Steinberg::Vst::CtrlNumber midiControllerNumber, Steinberg::Vst::ParamID& id)
 {
-//	if (busIndex == 0 && channel == 0 && midiControllerNumber == Steinberg::Vst::kPitchBend) {
-//		id = PITCH_BEND;
-//		return kResultTrue;
-//	}
+	if (busIndex == 0 && (channel > 0 && channel < 16) && midiControllerNumber == Steinberg::Vst::kPitchBend) {
+		id = PITCH_BEND_01 + channel;
+		return kResultTrue;
+	}
 	return kResultFalse;
 }
 

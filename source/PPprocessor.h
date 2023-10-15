@@ -1,7 +1,7 @@
 //
 // Copyright (c) 2023 suzumushi
 //
-// 2023-9-2		PPprocessor.h
+// 2023-10-15		PPprocessor.h
 //
 // Licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0).
 //
@@ -67,9 +67,11 @@ protected:
 	// GUI and host facing parameters
 	struct GUI_param gp;
 
-	// incoming note on/off message
+	// incoming note on/off messages
 	struct {
-		bool update {false};						// update of note on/off
+		bool on1 {false};							// receive note on then voices == 1
+		bool on2 {false};							// receive note on then voices > 1
+		bool off0 {false};							// receive note off then voices == 0
 		int voices {0};								// number of channel voices 
 		int32 onSampleOffset {0};					// sample offset of note on message
 		int32 offSampleOffset {0};					// sample offset of note off message
@@ -79,10 +81,13 @@ protected:
 
 	// channel status
 	struct {
-		bool start {true};							// start of portamento
+		bool start {false};							// start of portamento
+		bool end {false};							// end of portamento
+		bool cont {false};							// continue portamento
 		int initialPitch {0};
 		int currentPitch {0};
 		int targetPitch {0};
+		int pitchBend {0};							// incoming pitch bend
 		int bendCount {0};							// number of transmitted pitch bend messages 
 		int numBend {0};							// number of pitch bend messages to be sent
 		int clock {0};

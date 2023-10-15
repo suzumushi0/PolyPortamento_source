@@ -1,7 +1,7 @@
 //
 // Copyright (c) 2023 suzumushi
 //
-// 2023-9-25		PPprocessor.cpp
+// 2023-10-15		PPprocessor.cpp
 //
 // Licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0).
 //
@@ -103,8 +103,10 @@ tresult PLUGIN_API PolyPortamentoProcessor:: process (Vst::ProcessData& data)
 			Vst::Event iEvent;
 			if (data.inputEvents->getEvent (i, iEvent) == kResultOk) {
 				if (iEvent.type == Vst::Event::kNoteOnEvent && iEvent.noteOn.velocity != 0.0) {
-					noteOnOff [iEvent.noteOn.channel].update = true;
-					noteOnOff [iEvent.noteOn.channel].voices++;
+					if (noteOnOff [iEvent.noteOn.channel].voices++ == 0)
+						noteOnOff [iEvent.noteOn.channel].on1 = true;
+					else
+						noteOnOff [iEvent.noteOn.channel].on2 = true;
 					noteOnOff [iEvent.noteOn.channel].onSampleOffset = iEvent.sampleOffset;
 					noteOnOff [iEvent.noteOn.channel].note = iEvent.noteOn.pitch;
 					noteOnOff [iEvent.noteOn.channel].velocity = iEvent.noteOn.velocity;
@@ -113,7 +115,7 @@ tresult PLUGIN_API PolyPortamentoProcessor:: process (Vst::ProcessData& data)
 					if (noteOnOff [iEvent.noteOff.channel].voices > 0)
 						noteOnOff [iEvent.noteOff.channel].voices--;
 					if (noteOnOff [iEvent.noteOff.channel].voices == 0) {
-						noteOnOff [iEvent.noteOff.channel].update = true;
+						noteOnOff [iEvent.noteOff.channel].off0 = true;
 						noteOnOff [iEvent.noteOff.channel].offSampleOffset = iEvent.sampleOffset;
 					}
 				}
@@ -121,20 +123,66 @@ tresult PLUGIN_API PolyPortamentoProcessor:: process (Vst::ProcessData& data)
 		}
 	}
 
+	// update of channel status
+	for (int i = 1; i < 16; i++) {
+		if (noteOnOff [i].on1) {
+			if (noteOnOff [i].off0)	{					// on1 && off0
+				if (noteOnOff [i].onSampleOffset == noteOnOff [i].offSampleOffset)
+					channelStat [i].cont = true;
+				else if (noteOnOff [i].onSampleOffset > noteOnOff [i].offSampleOffset)
+					channelStat [i].start = channelStat [i].end = true;
+			} else										// on1 && !off0
+				channelStat [i].start = true;
+		} else {										// !on1
+			if (noteOnOff [i].on2) {					// !on1 && on2
+				if (noteOnOff [i].off0) {				// !on1 && on2 && off0
+					if (noteOnOff [i].onSampleOffset == noteOnOff [i].offSampleOffset)
+						channelStat [i].cont = true;
+					else if (noteOnOff [i].onSampleOffset < noteOnOff [i].offSampleOffset)
+						channelStat [i].end = true;
+				} else									// !on1 && on2 && !off0
+					channelStat [i].cont = true;
+			} else
+				if (noteOnOff [i].off0)					// !on1 && !on2 && off0
+					channelStat [i].end = true;
+		}
+		noteOnOff [i].on1 = false;
+		noteOnOff [i].on2 = false;
+		noteOnOff [i].off0 = false;
+	}
+
+
 	Vst::Event oEvent;
 	oEvent.busIndex = 0;
 	oEvent.ppqPosition = 0.0;
 	oEvent.flags = 0;
 
+	// end of portamento
+	oEvent.type = Vst::Event::kNoteOffEvent;
+	oEvent.noteOff.pitch = middleNote;
+	oEvent.noteOff.velocity = 0;
+	for (int i = 1; i < 16; i++) {
+		if (channelStat [i].end) {
+			channelStat [i].end = false;
+			// stop pitch bend output
+			channelStat [i].bendCount = 0;				
+			channelStat [i].numBend = 0;
+			// middle note off
+			oEvent.sampleOffset = noteOnOff [i].offSampleOffset;
+			oEvent.noteOff.channel = i;
+			data.outputEvents->addEvent (oEvent);
+		}
+	}
+
 	// start of portamento
 	// initial pitch bend
 	oEvent.type = Vst::Event::kLegacyMIDICCOutEvent;
 	oEvent.midiCCOut.controlNumber = Vst::kPitchBend;
-	for (int i = 0; i < 16; i++) {
-		if (channelStat [i].start && noteOnOff [i].update && noteOnOff [i].voices > 0) {
+	for (int i = 1; i < 16; i++) {
+		if (channelStat [i].start) {
+			channelStat [i].currentPitch = std::max (std::min (NoteTo.pitch (noteOnOff [i].note) + channelStat [i].pitchBend, 16'383), 0);
 			oEvent.sampleOffset = noteOnOff [i].onSampleOffset;
 			oEvent.midiCCOut.channel = i;
-			channelStat [i].currentPitch = NoteTo.pitch (noteOnOff [i].note);
 			oEvent.midiCCOut.value = channelStat [i].currentPitch % 128;		// LSB
 			oEvent.midiCCOut.value2 = channelStat [i].currentPitch / 128;		// USB
 			data.outputEvents->addEvent (oEvent);
@@ -143,9 +191,8 @@ tresult PLUGIN_API PolyPortamentoProcessor:: process (Vst::ProcessData& data)
 	// middle note on
 	oEvent.type = Vst::Event::kNoteOnEvent;
 	oEvent.noteOn.pitch = middleNote;
-	for (int i = 0; i < 16; i++) {
-		if (channelStat [i].start && noteOnOff [i].update && noteOnOff [i].voices > 0) {
-			noteOnOff [i].update = false;
+	for (int i = 1; i < 16; i++) {
+		if (channelStat [i].start) {
 			channelStat [i].start = false;
 			oEvent.sampleOffset = noteOnOff [i].onSampleOffset;
 			oEvent.noteOn.channel = i;
@@ -157,40 +204,22 @@ tresult PLUGIN_API PolyPortamentoProcessor:: process (Vst::ProcessData& data)
 	// continue portamento
 	if (data.processContext && data.processContext->state & Vst::ProcessContext::kTempoValid)
 		tempo = data.processContext->tempo;
-	for (int i = 0; i < 16; i++) {
-		if (!channelStat [i].start && noteOnOff [i].update && noteOnOff [i].voices > 0) {
-			noteOnOff [i].update = false;
+	for (int i = 1; i < 16; i++) {
+		if (channelStat [i].cont) {
+			channelStat [i].cont = false;
 			// setup continuous pitch bend information
 			channelStat [i].initialPitch = channelStat [i].currentPitch;
-			channelStat [i].targetPitch = NoteTo.pitch (noteOnOff [i].note);
+			channelStat [i].targetPitch = std::max (std::min (NoteTo.pitch (noteOnOff [i].note) + channelStat [i].pitchBend, 16'383), 0);
 			channelStat [i].bendCount = 0;
 			channelStat [i].numBend = numBend (i);
 			channelStat [i].clock = interval;
 		}
 	}
 
-	// end of portamento
-	oEvent.type = Vst::Event::kNoteOffEvent;
-	oEvent.noteOff.pitch = middleNote;
-	oEvent.noteOff.velocity = 0;
-	for (int i = 0; i < 16; i++) {
-		if (noteOnOff [i].update && noteOnOff [i].voices == 0) {
-			noteOnOff [i].update = false;
-			channelStat [i].start = true;
-			// stop pitch bend output
-			channelStat [i].bendCount = 0;				
-			channelStat [i].numBend = 0;
-			// middle note off
-			oEvent.sampleOffset = noteOnOff [i].offSampleOffset;
-			oEvent.noteOff.channel = i;
-			data.outputEvents->addEvent (oEvent);
-		}
-	}
-
 	// output pitch bend
 	oEvent.type = Vst::Event::kLegacyMIDICCOutEvent;
 	oEvent.midiCCOut.controlNumber = Vst::kPitchBend;
-	for (int i = 0; i < 16; i++) {
+	for (int i = 1; i < 16; i++) {
 		if (channelStat [i].bendCount < channelStat [i].numBend && (channelStat [i].clock += data.numSamples) >= interval) {
 			channelStat [i].bendCount++;
 			channelStat [i].clock -= interval;
@@ -286,6 +315,8 @@ void PolyPortamentoProcessor:: gui_param_update (const ParamID paramID, const Pa
 			gp.p_curve = rangeParameter::toPlain (paramValue, p_curve);
 			break;
 	}
+	if (paramID >= PITCH_BEND_02 && paramID <= PITCH_BEND_16)
+		channelStat [paramID - PITCH_BEND_01].pitchBend = (int)((paramValue - 0.5) * 16'384.0 + 0.5);
 }
 
 int PolyPortamentoProcessor:: currentPitch (const int ch) const
@@ -323,9 +354,14 @@ void PolyPortamentoProcessor:: reset ()
 {
 	interval = processSetup.sampleRate / pitchBendCycle + 0.5;
 	for (int i = 0; i < 16; i++) {
-		noteOnOff [i].update = false;
+		noteOnOff [i].on1 = false;
+		noteOnOff [i].on2 = false;
+		noteOnOff [i].off0 = false;
 		noteOnOff [i].voices = 0;
-		channelStat [i].start = true;
+		channelStat [i].start = false;
+		channelStat [i].end = false;
+		channelStat [i].cont = false;
+		channelStat [i].pitchBend = 0;
 		channelStat [i].bendCount = 0;
 		channelStat [i].numBend = 0;
 	}
